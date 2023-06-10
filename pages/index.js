@@ -27,7 +27,7 @@ export default function Home() {
   const [title, setTitle] = useState("");
   const [plot, setPlot] = useState("");
   const [ratings, setRatings] = useState("");
-  const [favouriteMovies, setFavouriteMovies] = useState([]);
+  const [feedFavouriteMovies, setFeedFavouriteMovies] = useState([]);
 
   const [trendingMovies, setTrendingMovies] = useState([]);
 
@@ -45,18 +45,23 @@ export default function Home() {
     });
     return mapMovies;
   };
+  useEffect(() => {
+    getTrendingMovies();
+  }, []);
 
   const getFavMovies = async () => {
-    const q = query(favouritesRef,orderBy(serverTimestamp));
+    const q = query(favouritesRef,orderBy("FAV_TITLE"));
     const mapFavMovies = onSnapshot(q, (snapshot) => {
-        setFavouriteMovies(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+        setFeedFavouriteMovies(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
     });
     return mapFavMovies;
 }
 
-  useEffect(() => {
-    getTrendingMovies();
-  }, []);
+useEffect(() => {
+  getFavMovies();
+}, []);
+
+ 
 
   const date = new Date(Date.now());
   const months = [
@@ -87,11 +92,9 @@ export default function Home() {
   let day = days[date.getDay()];
 
   if (loading) return;
-  if (!user) return router.push("/login");
+  if (!user) return router.push("/mbLogin");
 
-  const logoutHandler = () => {
-    auth.signOut();
-  };
+ 
 
   const inputHandler = (e) => {
     setInputText(e.target.value);
@@ -179,16 +182,16 @@ export default function Home() {
             My Feed
           </div>
 
-          <FeedCard/>
-
-
-
+          {feedFavouriteMovies.map((eachFavouriteMovie) => (
+              <FeedCard key = {eachFavouriteMovie.id} {...eachFavouriteMovie}></FeedCard>
+          ))}
+          <FeedCard />
           <div className="text-white text-3xl flex justify-center items-center font-arimo mt-10">
             Trending
           </div>
           <div
             id="slider"
-            className="w-full overflow-x-scroll scroll whitespace-nowrap scroll-smooth scrollbar-hide"
+            className="overflow-x-scroll scroll whitespace-nowrap scroll-smooth scrollbar-hide"
           >
             <div className="relative flex items-center">
               <IoIosArrowBack
@@ -209,15 +212,9 @@ export default function Home() {
               />
             </div>
           </div>
-
-          <div className="mx-auto flex flex-col justify-center w-32">
-            <button
-              onClick={logoutHandler}
-              className="text-white bg-purple-600 text-lg rounded-2xl p-3"
-            >
-              Logout
-            </button>
-          </div>
+        </div>
+        <div className="m-10 flex items-center justify-center">
+          <button>Explore</button>
         </div>
       </main>
     </>

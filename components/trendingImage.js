@@ -38,7 +38,9 @@ export default function Trendingimage({PLOT, RATINGS, TITLE, URL, USER}){
           await addDoc(favouritesRef,
             {FAV_TITLE: TITLE,
             FAV_URL: URL,
-          USER_ID: user.uid});
+            USER_ID: user.uid,
+            USER_NAME: user.displayName,
+            USER_PFP: user.photoURL});
         }
         else{
           console.log("null favourites")
@@ -64,7 +66,7 @@ export default function Trendingimage({PLOT, RATINGS, TITLE, URL, USER}){
                 
                   src={URL}
                   alt="movie"
-                  className="h-19 min-h-[200px] min-w-[300px] rounded-xl inline-block p-2 cursor-pointer hover:scale-105 ease-in-out duration-300"
+                  className="max-h-[150px] max-w-[250px] min-w-[150px] min-h-[250px] rounded-3xl inline-block p-2 cursor-pointer hover:scale-105 ease-in-out duration-300"
                 />
                 </Link>
               </div>

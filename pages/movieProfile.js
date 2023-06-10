@@ -11,8 +11,6 @@ export default function MovieProfile() {
   const modalState = settingsInfo.openModalState;
   const router = useRouter();
 
-  console.log(router.query.TITLE);
-
   return (
   <>
   <div>

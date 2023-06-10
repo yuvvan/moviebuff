@@ -1,31 +1,27 @@
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import { BiArrowBack } from "react-icons/bi";
-import { useAuthState } from "react-firebase-hooks/auth";
 import Grid from "@/components/gridView";
 import { auth, db } from "@/utils/firebase";
-import {
-  addDoc,
-  collection,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query, where } from "firebase/firestore";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import {BiArrowBack} from "react-icons/bi"
 
-export default function Profile() {
-  const [user, loading] = useAuthState(auth);
+
+
+export default function UsersProfile(){
+
   const [isFollowed, setIsFollowed] = useState(false);
+  const [user, loading] = useAuthState(auth);
   const [pageState, setPageState] = useState(true);
   const [favouriteMovies, setFavouriteMovies] = useState([]);
 
   const favouritesRef = collection(db, "favourites");
 
-  const router = useRouter();
+  const profileRouter = useRouter();
+  console.log(profileRouter);
 
   const getFavMovies = async () => {
-    const q = query(favouritesRef, where("USER_ID", "==", user.uid),orderBy("FAV_TITLE"));
+    const q = query(favouritesRef, where("USER_ID", "==", profileRouter.query.USER_ID),orderBy("FAV_TITLE"));
     const mapFavMovies = onSnapshot(q, (snapshot) => {
         setFavouriteMovies(snapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
     });
@@ -36,11 +32,6 @@ useEffect(() => {
 }, []);
 
 
-  () => {
-    if (!user) {
-      return router.push("/mblogin");
-    }
-  };
   function FollowBtn() {
     if (isFollowed == false) {
       return (
@@ -63,22 +54,17 @@ useEffect(() => {
       );
     }
   }
-
-  const logoutHandler = () => {
-    auth.signOut();
-    router.push("/mbLogin");
-  };
-
-  return (
-    <>
+    return(
+        <>
+            <>
       <BiArrowBack
-        onClick={() => router.push("/")}
+        onClick={() => profileRouter.push("/")}
         size={30}
         className="mx-5 mt-3 cursor-pointer p-1 hover:bg-opacity-20 hover:bg-gray-300  rounded-full"
       />
       <div className="flex flex-col mx-auto items-center justify-center text-white mt-7">
-        <img className="rounded-full" src={user.photoURL} alt="pfp" />
-        <h1 className="text-2xl mt-3 mb-5"></h1>
+        <img className="rounded-full" src={profileRouter.query.USER_PFP} alt="pfp" />
+        <h1 className="text-2xl mt-3 mb-5">{profileRouter.query.USER_NAME}</h1>
         <div>
           <FollowBtn />
           <button className="bg-gray-400 py-2 px-4 rounded-lg text-lg ml-2 hover:px-6 hover:mx-5 ease-in-out duration-300 ">
@@ -87,7 +73,7 @@ useEffect(() => {
         </div>
         <div className="mt-20 flex text-sm gap-20">
           <button
-          className={`${pageState ? 'text-white overline' : 'text-gray-400'}`}
+           className={`${pageState ? 'text-white overline' : 'text-gray-400'}`}
             onClick={() => 
               setPageState(true)
             }
@@ -95,9 +81,9 @@ useEffect(() => {
             FAVOURITES
           </button>
           <button
-          className={`${pageState ? 'text-gray-400' : 'text-white overline' }`}
+           className={`${pageState ? 'text-gray-400' : 'text-white overline' }`}
             onClick={() => {
-              setPageState(false);
+               setPageState(false);
             }}
           >
             RECENTLY WATCHED
@@ -110,14 +96,7 @@ useEffect(() => {
       )) : <h1>Recent Page</h1>}
     </div>
       </div>
-      <div className="mx-auto flex flex-col justify-center w-32 mt-12">
-            <button
-              onClick={logoutHandler}
-              className="text-white bg-purple-600 text-lg rounded-2xl p-3"
-            >
-              Logout
-            </button>
-          </div>
     </>
-  );
+        </>
+    );
 }
